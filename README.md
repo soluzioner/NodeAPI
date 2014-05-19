@@ -1,4 +1,8 @@
 #	NodeAPI
+####### CONTAINS STEVE'S SOLUZION WORK OF MAY 2014 ######
+####### The customization is mostly in libs/mongoose.js  as of now.
+
+
 
 ##	Summary
 

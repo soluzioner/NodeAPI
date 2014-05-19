@@ -165,13 +165,16 @@ var RefreshTokenModel = mongoose.model('RefreshToken', RefreshToken);
  Beginning of Soluz-Specific Data Model Items  (by SLT) ...
 
  */
+Objectid = mongoose.Schema.ObjectId;
 
 var Group;
 Group = new Schema({
     list_of_users: [User],
-    name: { type: String, required: true },
-    leader: User,
-    properties: Object
+    name: String,
+    leader: String,
+    properties: {
+        type: Objectid
+    }
 });
 var GroupModel = mongoose.model('Group', Group);
 
@@ -193,10 +196,17 @@ Operator = new Schema({
 });
 var OperatorModel = mongoose.model('Operator', Operator);
 
+var OpWithParams;
+OpWithParams = new Schema({
+    op: String, //Operator,
+    args: [Object] // values of any needed parameters
+});
+var OpWithParamsModel = mongoose.model('OpWithParams', OpWithParams);
+
 var State;
 State = new Schema({
-    value: Object,
-    ancestor: State,
+    value: Objectid,
+    ancestor: Objectid, // State
     op_sequence: [OpWithParams]
 });
 var StateModel = mongoose.model('State', State);
@@ -204,35 +214,41 @@ var StateModel = mongoose.model('State', State);
 var Problem;
 Problem = new Schema({
     name: String,
-    initial_state: State,
+    initial_state: [State], // Just one state, but Mongoose objects so we have an array.
     operators: [Operator],
     state_vis_code: String,
     prob_space_vis_code: String,
-    parameter_generators: [Parameter_Generator],
-    evaluation_functions: [Evaluation_Function]
+    parameter_generators: [String],
+    evaluation_functions: [String]
 });
 var ProblemModel = mongoose.model('Problem', Problem);
 
 var Role;
 Role = new Schema({
     name: String,
-    problem: Problem,
+    problem: [Problem], // Just 1 problem, but Mongoose objects so we have an array.
     operators: [Operator]
 });
 var RoleModel = mongoose.model('Role', Role);
 
 var Role_Assignment;
 Role_Assignment = new Schema({
-    role: Role,
-    user: User
+    role: [Role], // Really only 1 role, but Mongoose likes arrays
+    user: [User]  // Really one 1 user, etc.
 });
 var RoleAssignmentModel = mongoose.model('Role_Assignment', Role_Assignment);
 
+var Annotation;
+Annotation = new Schema({
+    author: Objectid, // User
+    type: String,
+    body: String
+})
 var Session;
 Session = new Schema({
-    group: Group,
-    common_data: Object,
-    problem: Problem,
+    group: Objectid, //Group,
+    common_data: Objectid,
+    problem: Objectid, //Problem,
     session_tree: [State],
     annotations: [Annotation],
     role_assignments: [Role_Assignment]
@@ -249,29 +265,30 @@ Agent = new Schema({
         type: String,
         enum: ['eval', 'create', 'both']
     },
-    eval_fn: Evaluation_Function,
-    parameter_generators: [Parameter_Generator],
+    eval_fn: String, //Evaluation_Function,
+    parameter_generators: [String],
     operators_allowed: [Operator],
     verbosity: {
         type: String,
         enum: ['silent', 'terse', 'verbose']
     },
-    reporting_interval: int,
-    pause: boolean
+    reporting_interval: Number,
+    pause: Boolean
 });
 var AgentModel = mongoose.model('Agent', Agent);
 
 var Node;
 Node = new Schema({
-    state: State,
-    parent: State,
-    vis: Images
+    state: Objectid, //State,
+    parent: Objectid, //State,
+    vis: Objectid, //Images,
+    annotations: [Annotation]
 });
 var NodeModel = mongoose.model('Node', Node);
 
 var Node_ViewProp_Pair;
 Node_ViewProp_Pair = new Schema({
-    node: Node,
+    node: Objectid, //Node,
     view_prop: String
 });
 var NodeViewPropPairModel = mongoose.model('Node_ViewProp_Pair', Node_ViewProp_Pair);
@@ -279,7 +296,7 @@ var NodeViewPropPairModel = mongoose.model('Node_ViewProp_Pair', Node_ViewProp_P
 var View;
 View = new Schema({
     name: String,
-    session: Session,
+    session: Objectid, //Session,
     overlay: [Node_ViewProp_Pair]
 });
 var ViewModel = mongoose.model('View', View);
